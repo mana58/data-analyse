@@ -1,0 +1,1693 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>行政服务品类看板</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #242321;
+      --muted: #6a655d;
+      --line: #ded8ce;
+      --paper: #fffdfa;
+      --wash: #f6f0e8;
+      --soft: #f2ece3;
+      --active: #242321;
+      --accent: #2b8c8c;
+      --accent-2: #e05a47;
+      --warn: #b7791f;
+      --shadow: 0 18px 42px rgba(34, 31, 28, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif;
+      color: var(--ink);
+      background: var(--wash);
+    }
+
+    button, input { font: inherit; letter-spacing: 0; }
+
+    .shell {
+      min-height: 100vh;
+      padding: 26px 32px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 18px;
+      align-items: end;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 30px;
+      line-height: 1.18;
+      font-weight: 760;
+      letter-spacing: 0;
+    }
+
+    .segmented {
+      display: inline-flex;
+      padding: 3px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+      min-height: 40px;
+      max-width: 100%;
+      overflow-x: auto;
+      box-shadow: 0 1px 2px rgba(34, 31, 28, 0.04);
+    }
+
+    .segmented button {
+      flex: 0 0 auto;
+      min-height: 32px;
+      border: 0;
+      border-radius: 6px;
+      padding: 0 16px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .segmented button[aria-pressed="true"] {
+      background: var(--active);
+      color: #fffdfa;
+      font-weight: 650;
+    }
+
+    [hidden] { display: none !important; }
+
+    .module-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 30px;
+    }
+
+    .module-title {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.35;
+      font-weight: 730;
+      letter-spacing: 0;
+    }
+
+    .overview-module {
+      display: grid;
+      gap: 10px;
+    }
+
+    .overview-text {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .stat-strip {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(126px, 1fr));
+      gap: 10px;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+      padding: 12px 14px;
+      min-height: 76px;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.3;
+    }
+
+    .stat-value {
+      margin-top: 6px;
+      font-size: 23px;
+      line-height: 1.1;
+      font-weight: 730;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .overview-highlights {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .highlight {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+      padding: 12px 14px;
+      min-height: 104px;
+      box-shadow: 0 1px 2px rgba(34, 31, 28, 0.04);
+      min-width: 0;
+    }
+
+    .highlight-label {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .highlight-value {
+      margin-top: 6px;
+      font-size: 17px;
+      line-height: 1.3;
+      font-weight: 720;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .highlight-sub {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .overview-boards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    .overview-panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+      box-shadow: 0 1px 2px rgba(34, 31, 28, 0.04);
+      overflow: hidden;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .overview-panel-head {
+      min-height: 46px;
+      padding: 11px 14px 9px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--line);
+      background: #faf6f0;
+    }
+
+    .overview-panel-title {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.35;
+      font-weight: 720;
+      letter-spacing: 0;
+    }
+
+    .overview-panel-meta {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .overview-list {
+      flex: 1 1 auto;
+      display: grid;
+      gap: 2px;
+      padding: 8px 10px 10px;
+      max-height: 430px;
+      overflow-y: auto;
+      scrollbar-gutter: stable;
+    }
+
+    .overview-list.is-filled {
+      grid-auto-rows: minmax(42px, 1fr);
+    }
+
+    .overview-row {
+      display: grid;
+      grid-template-columns: 26px minmax(0, 1fr) 64px 86px;
+      gap: 8px;
+      align-items: center;
+      min-height: 42px;
+      padding: 7px 4px 6px;
+      border-bottom: 1px solid #f0e8de;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .overview-row:last-child { border-bottom: 0; }
+
+    .overview-rank {
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+    }
+
+    .overview-name {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 650;
+    }
+
+    .overview-count,
+    .overview-amount {
+      color: var(--muted);
+      text-align: right;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .overview-bar {
+      grid-column: 2 / 5;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--soft);
+      overflow: hidden;
+    }
+
+    .overview-bar > span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--accent);
+    }
+
+    .cost-module {
+      display: grid;
+      gap: 12px;
+    }
+
+    .cost-list {
+      display: grid;
+      gap: 8px;
+      padding: 14px;
+      min-height: 292px;
+      align-content: start;
+    }
+
+    .cost-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 88px 76px;
+      gap: 10px;
+      align-items: center;
+      min-height: 38px;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .cost-name {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 650;
+    }
+
+    .cost-value,
+    .cost-samples {
+      color: var(--muted);
+      text-align: right;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .cost-bar {
+      grid-column: 1 / 4;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--soft);
+      overflow: hidden;
+    }
+
+    .cost-bar > span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--accent-2);
+    }
+
+    .empty-state {
+      display: grid;
+      place-items: center;
+      min-height: 260px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+      text-align: center;
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      background: #faf6f0;
+    }
+
+    .mindmap {
+      display: grid;
+      gap: 14px;
+      padding: 16px;
+      max-height: 680px;
+      overflow: auto;
+      scrollbar-gutter: stable;
+    }
+
+    .mind-category {
+      min-width: 720px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+      overflow: hidden;
+    }
+
+    .mind-category > summary,
+    .mind-subcategory > summary {
+      list-style: none;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .mind-category > summary::-webkit-details-marker,
+    .mind-subcategory > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .mind-node {
+      display: grid;
+      grid-template-columns: 18px minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+      background: #faf6f0;
+      padding: 11px 13px;
+      min-width: 0;
+    }
+
+    .mind-caret {
+      width: 18px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1;
+      text-align: center;
+      transition: transform 120ms ease;
+    }
+
+    .mind-category[open] > summary .mind-caret,
+    .mind-subcategory[open] > summary .mind-caret {
+      transform: rotate(90deg);
+    }
+
+    .mind-node-title {
+      min-width: 0;
+      font-size: 13px;
+      line-height: 1.35;
+      font-weight: 720;
+      overflow-wrap: anywhere;
+    }
+
+    .mind-node-meta {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .mind-category > summary:focus-visible,
+    .mind-subcategory > summary:focus-visible {
+      outline: 3px solid rgba(43, 140, 140, 0.18);
+      outline-offset: 2px;
+    }
+
+    .mind-branches {
+      display: grid;
+      gap: 8px;
+      padding: 12px 14px 14px 42px;
+      background: var(--paper);
+    }
+
+    .mind-subcategory {
+      border: 1px solid #eee5da;
+      border-radius: 8px;
+      background: #fffdfa;
+      overflow: hidden;
+    }
+
+    .supplier-chips {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 8px;
+      min-width: 0;
+      padding: 12px 14px 14px 40px;
+      border-top: 1px solid #f0e8de;
+      background: #fffdfa;
+    }
+
+    .supplier-chip {
+      border: 1px solid #e7dfd4;
+      border-radius: 7px;
+      background: #faf6f0;
+      padding: 7px 9px;
+      color: var(--ink);
+      font-size: 12px;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .panel-head {
+      min-height: 48px;
+      padding: 13px 16px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.3;
+      font-weight: 720;
+      letter-spacing: 0;
+    }
+
+    .panel-meta {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+      white-space: nowrap;
+    }
+
+    .chart-layout {
+      min-height: 398px;
+      display: grid;
+      grid-template-columns: minmax(230px, 0.85fr) minmax(300px, 1.15fr);
+      gap: 10px;
+      align-items: center;
+      padding: 12px 14px 14px;
+    }
+
+    svg.pie {
+      display: block;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      min-height: 260px;
+    }
+
+    .slice { stroke: #fffdfa; stroke-width: 1.4; }
+    .slice.is-faded { opacity: 0.38; }
+
+    .center-title {
+      fill: var(--ink);
+      font-size: 15px;
+      font-weight: 740;
+      letter-spacing: 0;
+    }
+
+    .center-sub {
+      fill: var(--muted);
+      font-size: 12px;
+      font-weight: 560;
+      letter-spacing: 0;
+    }
+
+    .legend {
+      display: grid;
+      gap: 8px;
+      align-content: start;
+      max-height: 300px;
+      overflow-x: hidden;
+      overflow-y: auto;
+      scrollbar-gutter: stable;
+      overscroll-behavior: contain;
+      padding: 0 8px 4px;
+    }
+
+    .legend-head,
+    .legend-item {
+      display: grid;
+      grid-template-columns: 12px minmax(105px, 1fr) minmax(76px, auto) 54px;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .legend-head {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      min-height: 28px;
+      color: var(--muted);
+      background: var(--paper);
+      border-bottom: 1px solid #ebe4da;
+      font-size: 11px;
+      font-weight: 680;
+    }
+
+    .legend-item {
+      color: var(--ink);
+      font-size: 12px;
+      line-height: 1.35;
+      min-height: 19px;
+    }
+
+    .swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      display: inline-block;
+    }
+
+    .legend-name {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .legend-value {
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+      text-align: right;
+    }
+
+    .tables {
+      display: grid;
+      gap: 12px;
+    }
+
+    .contract-module {
+      display: grid;
+      gap: 12px;
+    }
+
+    .table-toolbar {
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--line);
+      background: #faf6f0;
+    }
+
+    .search {
+      width: min(340px, 100%);
+      height: 34px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 0 10px;
+      color: var(--ink);
+      background: var(--paper);
+      outline: none;
+    }
+
+    .search:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(23, 126, 137, 0.12);
+    }
+
+    .table-wrap {
+      width: 100%;
+      overflow: auto;
+      max-height: 500px;
+    }
+
+    table {
+      width: 100%;
+      min-width: 850px;
+      border-collapse: collapse;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #ebe4da;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: #faf6f0;
+      color: #46515f;
+      font-size: 12px;
+      font-weight: 710;
+      white-space: nowrap;
+    }
+
+    tbody tr:hover { background: #fbf7f1; }
+
+    .num {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .name-cell {
+      max-width: 340px;
+      min-width: 220px;
+    }
+
+    .subtle { color: var(--muted); }
+
+    .bar-cell {
+      min-width: 132px;
+    }
+
+    .bar {
+      height: 7px;
+      border-radius: 999px;
+      background: var(--soft);
+      overflow: hidden;
+      margin-top: 5px;
+    }
+
+    .bar > span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--accent);
+    }
+
+    .bar.amount > span { background: var(--accent-2); }
+
+    .tooltip {
+      position: fixed;
+      z-index: 20;
+      width: min(320px, calc(100vw - 28px));
+      pointer-events: none;
+      border: 1px solid rgba(36, 35, 33, 0.14);
+      border-radius: 8px;
+      background: rgba(255, 253, 250, 0.97);
+      box-shadow: 0 18px 38px rgba(34, 31, 28, 0.16);
+      padding: 12px 13px;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 120ms ease, transform 120ms ease;
+    }
+
+    .tooltip.is-visible { opacity: 1; transform: translateY(0); }
+
+    .tip-title {
+      font-weight: 760;
+      line-height: 1.35;
+      margin-bottom: 8px;
+    }
+
+    .tip-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.65;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .tip-row strong { color: var(--ink); font-weight: 690; }
+
+    @media (max-width: 980px) {
+      .shell { padding: 18px 14px 22px; }
+      .topbar { grid-template-columns: 1fr; align-items: start; }
+      h1 { font-size: 24px; }
+      .stat-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .overview-highlights { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .overview-boards { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .mind-category,
+      .mind-subcategory { grid-template-columns: 1fr; min-width: 0; }
+      .mind-branches { border-left: 0; padding: 10px; }
+      .supplier-chips { grid-template-columns: 1fr; padding: 10px; }
+      .mind-subcategory::before { display: none; }
+      .chart-layout { grid-template-columns: 1fr; min-height: auto; }
+      svg.pie { min-height: 250px; }
+      .legend { max-height: 220px; padding-left: 2px; }
+      .table-toolbar { align-items: stretch; flex-direction: column; }
+      .search { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="topbar" aria-label="看板顶部">
+      <h1>行政服务品类看板</h1>
+      <div class="segmented" aria-label="页面切换">
+        <button type="button" data-view="overview" aria-pressed="true">数据总览</button>
+        <button type="button" data-view="category" aria-pressed="false">品类</button>
+        <button type="button" data-view="distribution" data-dimension="demand" aria-pressed="false">需求方</button>
+        <button type="button" data-view="supplier" aria-pressed="false">供应商</button>
+        <button type="button" data-view="cost" aria-pressed="false">成本分析</button>
+        <button type="button" data-view="detail" aria-pressed="false">合同明细</button>
+      </div>
+    </section>
+
+    <section class="overview-module" data-view-section="overview" aria-label="数据总览">
+      <div class="module-heading">
+        <h2 class="module-title">数据总览</h2>
+      </div>
+      <section class="stat-strip" aria-label="关键指标">
+        <div class="stat"><div class="stat-label">项目数</div><div class="stat-value" id="statProjects"></div></div>
+        <div class="stat"><div class="stat-label">合同金额（万）</div><div class="stat-value" id="statAmount"></div></div>
+        <div class="stat"><div class="stat-label">一级品类</div><div class="stat-value" id="statCategories"></div></div>
+        <div class="stat"><div class="stat-label">需求方</div><div class="stat-value" id="statDemands"></div></div>
+        <div class="stat"><div class="stat-label">供应商</div><div class="stat-value" id="statSuppliers"></div></div>
+      </section>
+      <div class="overview-highlights" id="overviewHighlights" aria-label="数据总结"></div>
+      <section class="overview-boards" aria-label="整体数据分布概览">
+        <article class="overview-panel">
+          <div class="overview-panel-head">
+            <h3 class="overview-panel-title">一级品类概览</h3>
+            <div class="overview-panel-meta" id="overviewCategoryMeta"></div>
+          </div>
+          <div class="overview-list is-filled" id="overviewCategoryList"></div>
+        </article>
+        <article class="overview-panel">
+          <div class="overview-panel-head">
+            <h3 class="overview-panel-title">需求方金额 Top</h3>
+            <div class="overview-panel-meta" id="overviewDemandMeta"></div>
+          </div>
+          <div class="overview-list" id="overviewDemandList"></div>
+        </article>
+        <article class="overview-panel">
+          <div class="overview-panel-head">
+            <h3 class="overview-panel-title">供应商金额 Top</h3>
+            <div class="overview-panel-meta" id="overviewSupplierMeta"></div>
+          </div>
+          <div class="overview-list" id="overviewSupplierList"></div>
+        </article>
+      </section>
+    </section>
+
+    <section class="grid" data-view-section="category" aria-label="品类分布图" hidden>
+      <article class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title">一级品类项目数分布</h2>
+          <div class="panel-meta" id="categoryCountMeta"></div>
+        </div>
+        <div class="chart-layout">
+          <svg class="pie" id="categoryCountPie" role="img" aria-label="一级品类项目数分布饼图"></svg>
+          <div class="legend" id="categoryCountLegend"></div>
+        </div>
+      </article>
+      <article class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title">一级品类金额分布</h2>
+          <div class="panel-meta" id="categoryAmountMeta"></div>
+        </div>
+        <div class="chart-layout">
+          <svg class="pie" id="categoryAmountPie" role="img" aria-label="一级品类金额分布饼图"></svg>
+          <div class="legend" id="categoryAmountLegend"></div>
+        </div>
+      </article>
+      <article class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title">二级品类项目数分布</h2>
+          <div class="panel-meta" id="subcategoryCountMeta"></div>
+        </div>
+        <div class="chart-layout">
+          <svg class="pie" id="subcategoryCountPie" role="img" aria-label="二级品类项目数分布饼图"></svg>
+          <div class="legend" id="subcategoryCountLegend"></div>
+        </div>
+      </article>
+      <article class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title">二级品类金额分布</h2>
+          <div class="panel-meta" id="subcategoryAmountMeta"></div>
+        </div>
+        <div class="chart-layout">
+          <svg class="pie" id="subcategoryAmountPie" role="img" aria-label="二级品类金额分布饼图"></svg>
+          <div class="legend" id="subcategoryAmountLegend"></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="tables" data-view-section="category" aria-label="品类明细" hidden>
+      <article class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title">品类分布明细</h2>
+          <div class="panel-meta" id="categorySummaryMeta"></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>排名</th>
+                <th>品类层级</th>
+                <th>品类</th>
+                <th class="num">项目数</th>
+                <th class="bar-cell">项目数占比</th>
+                <th class="num">合同金额（万）</th>
+                <th class="bar-cell">金额占比</th>
+              </tr>
+            </thead>
+            <tbody id="categorySummaryBody"></tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+
+    <section class="grid" data-view-section="distribution" aria-label="分布图" hidden>
+      <article class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title" id="countTitle">项目数分布</h2>
+          <div class="panel-meta" id="countMeta"></div>
+        </div>
+        <div class="chart-layout">
+          <svg class="pie" id="countPie" role="img" aria-label="项目数分布饼图"></svg>
+          <div class="legend" id="countLegend"></div>
+        </div>
+      </article>
+      <article class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title" id="amountTitle">金额分布</h2>
+          <div class="panel-meta" id="amountMeta"></div>
+        </div>
+        <div class="chart-layout">
+          <svg class="pie" id="amountPie" role="img" aria-label="金额分布饼图"></svg>
+          <div class="legend" id="amountLegend"></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="tables" data-view-section="distribution" aria-label="分布明细" hidden>
+      <article class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title" id="summaryTitle">分布明细</h2>
+          <div class="panel-meta" id="summaryMeta"></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr id="summaryHeadRow">
+                <th>排名</th>
+                <th id="summaryDimHead">一级品类</th>
+                <th class="num">项目数</th>
+                <th class="bar-cell">项目数占比</th>
+                <th class="num">合同金额（万）</th>
+                <th class="bar-cell">金额占比</th>
+              </tr>
+            </thead>
+            <tbody id="summaryBody"></tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+
+    <section class="grid" data-view-section="supplier" aria-label="供应商分布图" hidden>
+      <article class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title">一级品类供应商数量分布</h2>
+          <div class="panel-meta" id="supplierCategoryMeta"></div>
+        </div>
+        <div class="chart-layout">
+          <svg class="pie" id="supplierCategoryPie" role="img" aria-label="一级品类供应商数量分布饼图"></svg>
+          <div class="legend" id="supplierCategoryLegend"></div>
+        </div>
+      </article>
+      <article class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title">二级品类供应商数量分布</h2>
+          <div class="panel-meta" id="supplierSubcategoryMeta"></div>
+        </div>
+        <div class="chart-layout">
+          <svg class="pie" id="supplierSubcategoryPie" role="img" aria-label="二级品类供应商数量分布饼图"></svg>
+          <div class="legend" id="supplierSubcategoryLegend"></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="tables" data-view-section="supplier" aria-label="供应商品类思维导图" hidden>
+      <article class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title">供应商品类明细</h2>
+          <div class="panel-meta" id="supplierMindMeta"></div>
+        </div>
+        <div class="mindmap" id="supplierMindMap"></div>
+      </article>
+    </section>
+
+    <section class="cost-module" data-view-section="cost" aria-label="成本分析" hidden>
+      <div class="module-heading">
+        <h2 class="module-title">成本分析</h2>
+        <div class="panel-meta" id="costMeta"></div>
+      </div>
+      <section class="stat-strip" aria-label="单价指标">
+        <div class="stat"><div class="stat-label">有单价合同</div><div class="stat-value" id="costPricedCount"></div></div>
+        <div class="stat"><div class="stat-label">单价覆盖率</div><div class="stat-value" id="costCoverage"></div></div>
+        <div class="stat"><div class="stat-label">平均单价</div><div class="stat-value" id="costAverage"></div></div>
+        <div class="stat"><div class="stat-label">最高单价</div><div class="stat-value" id="costMax"></div></div>
+        <div class="stat"><div class="stat-label">缺失单价合同</div><div class="stat-value" id="costMissing"></div></div>
+      </section>
+      <section class="grid" aria-label="单价分布">
+        <article class="panel">
+          <div class="panel-head">
+            <h2 class="panel-title">一级品类平均单价</h2>
+            <div class="panel-meta" id="costCategoryMeta"></div>
+          </div>
+          <div class="cost-list" id="costCategoryList"></div>
+        </article>
+        <article class="panel">
+          <div class="panel-head">
+            <h2 class="panel-title">二级品类平均单价</h2>
+            <div class="panel-meta" id="costSubcategoryMeta"></div>
+          </div>
+          <div class="cost-list" id="costSubcategoryList"></div>
+        </article>
+      </section>
+      <section class="tables" aria-label="单价明细">
+        <article class="panel">
+          <div class="panel-head">
+            <h2 class="panel-title">单价统计明细</h2>
+            <div class="panel-meta" id="costTableMeta"></div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>品类层级</th>
+                  <th>品类</th>
+                  <th class="num">样本数</th>
+                  <th class="num">平均单价</th>
+                  <th class="num">中位单价</th>
+                  <th class="num">最低单价</th>
+                  <th class="num">最高单价</th>
+                  <th class="num">合同金额（万）</th>
+                </tr>
+              </thead>
+              <tbody id="costTableBody"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+    </section>
+
+    <section class="contract-module" data-view-section="detail" aria-label="合同明细" hidden>
+      <article class="panel">
+        <div class="table-toolbar">
+          <h2 class="panel-title" id="detailTitle">合同明细</h2>
+          <input class="search" id="searchBox" type="search" placeholder="搜索合同、需求方、供应商" aria-label="搜索合同明细">
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th id="detailDimHead">一级品类</th>
+                <th>合同编码</th>
+                <th>合同名称</th>
+                <th>二级品类</th>
+                <th>需求方</th>
+                <th>供应商</th>
+                <th class="num">合同金额（万）</th>
+                <th>合同周期</th>
+              </tr>
+            </thead>
+            <tbody id="detailBody"></tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <div class="tooltip" id="tooltip" aria-hidden="true"></div>
+
+  <script>
+    const records = [{"category": "物业服务", "subcategory": "物业管理", "demand": "集团行政", "supplier": "第一太平融科物业管理（北京）有限公司", "code": "TAL-202602110057", "name": "好未来镇江园区项目物业管理委托服务合同", "signEntity": "欣欣相融教育科技（北京）有限公司", "amount": 19230000.0, "startDate": "2026-03-01", "endDate": "2029-02-28", "sourceSheet": "物业服务", "missingAmount": false}, {"category": "物业服务", "subcategory": "物业管理", "demand": "网校基地-西安", "supplier": "深圳万物商企物业服务有限公司西安分公司", "code": "TAL-202511190077", "name": "西安基地小物业服务合同2026", "signEntity": "北京学而思教育科技有限公司,欣欣相融教育科技（北京）有限公司", "amount": 9837686.42, "startDate": "2025-11-19", "endDate": "2027-11-30", "sourceSheet": "物业服务", "missingAmount": false}, {"category": "物业服务", "subcategory": "物业管理", "demand": "集团行政", "supplier": "第一太平融科物业管理（北京）有限公司", "code": "TAL-202504270032-01", "name": "补充协议-万达及丹棱小物业主体变更", "signEntity": "欣欣相融教育科技（北京）有限公司", "amount": 26845645.92, "startDate": "2025-05-01", "endDate": "2028-04-30", "sourceSheet": "物业服务", "missingAmount": false}, {"category": "物业服务", "subcategory": "物业管理", "demand": "集团行政", "supplier": "第一太平融科物业管理（北京）有限公司", "code": "TAL-202504270032", "name": "万达及丹棱职场小物业合同", "signEntity": "欣欣相融教育科技（北京）有限公司", "amount": 26845645.92, "startDate": "2025-05-01", "endDate": "2028-04-30", "sourceSheet": "物业服务", "missingAmount": false}, {"category": "物业服务", "subcategory": "保安", "demand": "网校基地-石家庄", "supplier": "石家庄森武保安服务有限公司", "code": "TAL-202510230053", "name": "2025-2026年石家庄基地保安年框", "signEntity": "北京学而思教育科技有限公司", "amount": 42720.0, "startDate": "2025-12-01", "endDate": "2026-11-30", "sourceSheet": "物业服务", "missingAmount": false}, {"category": "物业服务", "subcategory": "保洁", "demand": "网校基地-石家庄", "supplier": "石家庄远影商务服务有限公司", "code": "TAL-202509240021", "name": "石家庄客服基地2025年保洁年框", "signEntity": "北京学而思教育科技有限公司", "amount": 35915.4, "startDate": "2025-10-04", "endDate": "2026-10-03", "sourceSheet": "物业服务", "missingAmount": false}, {"category": "物业服务", "subcategory": "保安", "demand": "网校基地-镇江", "supplier": "江苏润扬保安服务有限公司", "code": "TAL-202510220050", "name": "2026-2026年镇江网校基地保安服务", "signEntity": "北京学而思教育科技有限公司", "amount": 600000.0, "startDate": "2025-11-01", "endDate": "2026-10-31", "sourceSheet": "物业服务", "missingAmount": false}, {"category": "物业服务", "subcategory": "保洁", "demand": "网校基地-镇江", "supplier": "南京银城物业服务有限公司", "code": "TAL-202507250026", "name": "2025年镇江网校基地保洁服务年框", "signEntity": "北京学而思教育科技有限公司", "amount": 541728.0, "startDate": "2025-08-15", "endDate": "2026-08-14", "sourceSheet": "物业服务", "missingAmount": false}, {"category": "物业服务", "subcategory": "保安", "demand": "网校基地-济南", "supplier": "山东瑞安保安服务有限公司", "code": "TAL-202507290034", "name": "2025年济南网校基地保安服务年框", "signEntity": "北京学而思教育科技有限公司济南分公司", "amount": 448800.0, "startDate": "2025-08-08", "endDate": "2026-08-07", "sourceSheet": "物业服务", "missingAmount": false}, {"category": "物业服务", "subcategory": "保洁", "demand": "网校基地-济南", "supplier": "山东君家逸物业管理有限公司", "code": "TAL-202510200027", "name": "2025年济南网校职场保洁服务合同", "signEntity": "北京学而思教育科技有限公司济南分公司", "amount": 484500.0, "startDate": "2025-11-01", "endDate": "2026-10-31", "sourceSheet": "物业服务", "missingAmount": false}, {"category": "物业服务", "subcategory": "保安", "demand": "区域行政-成都", "supplier": "四川华盾保安服务有限公司", "code": "TAL-202508250068", "name": "2025年成都创新职场保安服务年框", "signEntity": "成都跃趣软件有限公司", "amount": 180000.0, "startDate": "2025-09-16", "endDate": "2026-09-15", "sourceSheet": "物业服务", "missingAmount": false}, {"category": "物业服务", "subcategory": "绿植租赁", "demand": "集团行政", "supplier": "北京馨馨敬和商务服务有限公司", "code": "TAL-202508120048", "name": "2025年昌平万达职场花艺服务年框", "signEntity": "欣欣相融教育科技（北京）有限公司", "amount": 67128.0, "startDate": "2025-09-01", "endDate": "2026-08-31", "sourceSheet": "物业服务", "missingAmount": false}, {"category": "物业服务", "subcategory": "弱电改造", "demand": "集团行政", "supplier": "北京长信智慧科技有限公司", "code": "TAL-202508060025", "name": "2025好未来集团弱电改造服务框架", "signEntity": "欣欣相融教育科技（北京）有限公司", "amount": 100000.0, "startDate": "2025-08-22", "endDate": "2026-08-21", "sourceSheet": "物业服务", "missingAmount": false}, {"category": "物业服务", "subcategory": "灭火器年检", "demand": "集团行政", "supplier": "北京星宇浩瀚消防工程有限公司", "code": "TAL-202507220056", "name": "好未来集团灭火器检测及采购年框", "signEntity": "欣欣相融教育科技（北京）有限公司", "amount": 76250.0, "startDate": "2025-07-22", "endDate": "2026-07-21", "sourceSheet": "物业服务", "missingAmount": false}, {"category": "物业服务", "subcategory": "消电检", "demand": "集团行政", "supplier": "北京市金安华瑞消防工程技术有限公司", "code": "TAL-202507220029", "name": "好未来集团万达职场消电检服务单次", "signEntity": "欣欣相融教育科技（北京）有限公司", "amount": 25185.33, "startDate": "2025-07-25", "endDate": "2025-08-23", "sourceSheet": "物业服务", "missingAmount": false}, {"category": "物业服务", "subcategory": "保安", "demand": "网校基地-郑州", "supplier": "河南威盾保安服务有限公司", "code": "TAL-202603130019", "name": "郑州网校职场保安服务", "signEntity": "未填写签约主体", "amount": 240000.0, "startDate": "2026-04-01", "endDate": "2027-03-31", "sourceSheet": "物业服务", "missingAmount": false}, {"category": "物业服务", "subcategory": "绿植租赁", "demand": "网校基地-西安", "supplier": "深圳万物商企物业服务有限公司西安分公司", "code": "TAL-202605120042", "name": "2026年西安网校职场绿植服务框架协议", "signEntity": "未填写签约主体", "amount": 68112.0, "startDate": "2026-06-01", "endDate": "2027-05-31", "sourceSheet": "物业服务", "missingAmount": false}, {"category": "物业服务", "subcategory": "保洁", "demand": "区域行政-成都", "supplier": "世茂天成物业服务集团有限公司成都分公司", "code": "TAL-202605120053", "name": "2026年成都职场保洁服务年框", "signEntity": "未填写签约主体", "amount": 108000.0, "startDate": "2026-06-01", "endDate": "2027-05-31", "sourceSheet": "物业服务", "missingAmount": false}, {"category": "物业服务", "subcategory": "绿植租赁", "demand": "集团行政", "supplier": "北京馨馨敬和商务服务有限公司", "code": "TAL-202605150024", "name": "2026年好未来大楼及万达公区绿植服务年框", "signEntity": "未填写签约主体", "amount": 341016.0, "startDate": "2026-06-15", "endDate": "2027-06-14", "sourceSheet": "物业服务", "missingAmount": false}, {"category": "物业服务", "subcategory": "保洁", "demand": "网校基地-郑州", "supplier": "河南艾米丽物业服务有限公司", "code": "TAL-202606120059", "name": "2026-2028年郑州基地保洁服务合同", "signEntity": "未填写签约主体", "amount": 179520.0, "startDate": "2026-06-30", "endDate": "2028-06-29", "sourceSheet": "物业服务", "missingAmount": false}, {"category": "物业服务", "subcategory": "物业管理", "demand": "集团行政", "supplier": "北京内力科技发展有限公司", "code": "TAL-202601060062", "name": "企业团体课程服务采购合同", "signEntity": "未填写签约主体", "amount": 500.0, "startDate": "2026-01-20", "endDate": "2027-01-19", "sourceSheet": "物业服务", "missingAmount": false}, {"category": "物业服务", "subcategory": "物业管理", "demand": "集团行政", "supplier": "北京内力科技发展有限公司", "code": "TAL-202605290082", "name": "2026年大楼及万达公区健身房承包经营合同", "signEntity": "未填写签约主体", "amount": 10008.0, "startDate": "2026-07-06", "endDate": "2027-07-05", "sourceSheet": "物业服务", "missingAmount": false}, {"category": "物业服务", "subcategory": "物业管理", "demand": "集团行政", "supplier": "优桀实业（上海）有限公司", "code": "TAL-202511200040", "name": "咖啡机保养及维修年框", "signEntity": "北京时通运来商业管理有限公司", "amount": 60000.0, "startDate": "2025-11-20", "endDate": "2026-11-20", "sourceSheet": "物业服务", "missingAmount": false}, {"category": "物业服务", "subcategory": "物业管理", "demand": "集团行政", "supplier": "华信泰隆（北京）科贸发展有限公司", "code": "TAL-202603090046", "name": "咖啡机牛奶采购合同", "signEntity": "北京时通运来商业管理有限公司", "amount": 44000.0, "startDate": "2026-04-01", "endDate": "2027-03-31", "sourceSheet": "物业服务", "missingAmount": false}, {"category": "餐饮服务", "subcategory": "学员餐", "demand": "培优彼芯", "supplier": "北京龙城丽华快餐餐饮管理有限公司", "code": "TAL-202511210068", "name": "北京彼芯小学门店餐食框架协议-学员餐", "signEntity": "北京彼芯托育服务有限公司", "amount": 256882.0, "startDate": "2025-11-21", "endDate": "2026-11-20", "sourceSheet": "商旅、餐饮服务", "missingAmount": false}, {"category": "餐饮服务", "subcategory": "员工加班餐", "demand": "集团行政", "supplier": "金食多餐饮管理（北京）有限公司", "code": "TAL-202511100036", "name": "丹棱供餐服务框架合同", "signEntity": "欣欣相融教育科技（北京）有限公司", "amount": 158400.0, "startDate": "2025-11-01", "endDate": "2026-10-31", "sourceSheet": "商旅、餐饮服务", "missingAmount": false}, {"category": "餐饮服务", "subcategory": "员工加班餐", "demand": "网校基地-济南", "supplier": "济南众厨芳餐饮管理咨询有限公司", "code": "TAL-202509220032", "name": "供餐服务框架合同-众厨芳", "signEntity": "北京学而思教育科技有限公司济南分公司", "amount": 1684800.0, "startDate": "2025-09-21", "endDate": "2026-09-20", "sourceSheet": "商旅、餐饮服务", "missingAmount": false}, {"category": "餐饮服务", "subcategory": "员工加班餐", "demand": "网校基地-济南", "supplier": "济南大有米餐饮有限公司", "code": "TAL-202509180068", "name": "供餐服务框架合同-济南大有米", "signEntity": "北京学而思教育科技有限公司济南分公司", "amount": 2527200.0, "startDate": "2025-09-21", "endDate": "2026-09-20", "sourceSheet": "商旅、餐饮服务", "missingAmount": false}, {"category": "餐饮服务", "subcategory": "员工加班餐", "demand": "网校基地-郑州", "supplier": "郑州穗金黄餐饮管理有限公司", "code": "TAL-202509170049", "name": "2025年郑州基地供餐服务框架合同", "signEntity": "北京学而思教育科技有限公司", "amount": 950400.0, "startDate": "2025-09-22", "endDate": "2026-09-21", "sourceSheet": "商旅、餐饮服务", "missingAmount": false}, {"category": "商旅服务", "subcategory": "员工差旅", "demand": "集团行政", "supplier": "中国国际航空股份有限公司华北营销中心", "code": "TAL-202504080078", "name": "集团差旅-国航折扣框架协议", "signEntity": "北京学而思网络科技有限公司", "amount": 1000.0, "startDate": "2025-06-01", "endDate": "2026-05-31", "sourceSheet": "商旅、餐饮服务", "missingAmount": false}, {"category": "商旅服务", "subcategory": "员工差旅", "demand": "集团行政", "supplier": "汉庭星空（上海）酒店管理有限公司", "code": "TAL-202412270061", "name": "华住酒店集团订房合作协议", "signEntity": "北京世纪好未来教育科技有限公司", "amount": 500.0, "startDate": "2025-01-20", "endDate": "2026-06-30", "sourceSheet": "商旅、餐饮服务", "missingAmount": false}, {"category": "商旅服务", "subcategory": "员工差旅", "demand": "集团行政", "supplier": "中国南方航空股份有限公司", "code": "TAL-202412190053", "name": "集团客户销售合作协议-南航协议价", "signEntity": "北京学而思网络科技有限公司", "amount": 1000.0, "startDate": "2025-01-01", "endDate": "2029-12-31", "sourceSheet": "商旅、餐饮服务", "missingAmount": false}, {"category": "商旅服务", "subcategory": "员工差旅", "demand": "集团行政", "supplier": "北京昆泰嘉禾酒店有限公司", "code": "TAL-202412050026", "name": "商务公司协议-北京昆泰嘉禾酒店协议价", "signEntity": "北京世纪好未来教育科技有限公司", "amount": 480.0, "startDate": "2024-12-13", "endDate": "2099-12-31", "sourceSheet": "商旅、餐饮服务", "missingAmount": false}, {"category": "商旅服务", "subcategory": "员工差旅", "demand": "集团行政", "supplier": "镇江市明都大饭店管理有限公司", "code": "TAL-202512240041", "name": "2026镇江明都大饭店协议价", "signEntity": "欣欣相融教育科技（北京）有限公司", "amount": 1000.0, "startDate": "2026-01-01", "endDate": "2026-12-31", "sourceSheet": "商旅、餐饮服务", "missingAmount": false}, {"category": "商旅服务", "subcategory": "员工差旅", "demand": "集团行政", "supplier": "微旅通信息技术（北京）有限公司苏州分公司", "code": "TAL-202601070015", "name": "艺龙企业客户预定服务合作协议", "signEntity": "未填写签约主体", "amount": 500.0, "startDate": "2026-01-12", "endDate": "2026-12-31", "sourceSheet": "商旅、餐饮服务", "missingAmount": false}, {"category": "商旅服务", "subcategory": "员工差旅", "demand": "集团行政", "supplier": "上海携程宏睿国际旅行社有限公司", "code": "TAL-202512080035", "name": "好未来集团2026年差旅携程商旅平台服务", "signEntity": "未填写签约主体", "amount": 72000000.0, "startDate": "2025-12-16", "endDate": "2026-12-16", "sourceSheet": "商旅、餐饮服务", "missingAmount": false}, {"category": "餐饮服务", "subcategory": "员工加班餐", "demand": "区域行政-成都", "supplier": "广州友效达网络科技有限公司成都分公司", "code": "TAL-202603190050", "name": "成都熊猫创新职场企业用餐服务-悠饭", "signEntity": "未填写签约主体", "amount": 277200.0, "startDate": "2026-04-01", "endDate": "2027-03-31", "sourceSheet": "商旅、餐饮服务", "missingAmount": false}, {"category": "餐饮服务", "subcategory": "培训餐", "demand": "培优选培中心", "supplier": "宿迁京东朝升信息技术有限公司", "code": "TAL-202603180014", "name": "选培外卖服务平台-京东", "signEntity": "未填写签约主体", "amount": 495000.0, "startDate": "2026-03-20", "endDate": "2027-03-19", "sourceSheet": "商旅、餐饮服务", "missingAmount": false}, {"category": "商旅服务", "subcategory": "员工差旅", "demand": "集团行政", "supplier": "亚朵（上海）旅行社有限公司", "code": "TAL-202603040061", "name": "亚朵酒店协议价托管", "signEntity": "未填写签约主体", "amount": 1000.0, "startDate": "2026-04-01", "endDate": "2027-03-31", "sourceSheet": "商旅、餐饮服务", "missingAmount": false}, {"category": "餐饮服务", "subcategory": "员工加班餐", "demand": "区域行政-天津", "supplier": "天津市易健通达餐饮管理有限责任公司", "code": "TAL-202602130034", "name": "天津网校基地加班餐框架", "signEntity": "未填写签约主体", "amount": 97200.0, "startDate": "2026-03-01", "endDate": "2027-02-28", "sourceSheet": "商旅、餐饮服务", "missingAmount": false}, {"category": "餐饮服务", "subcategory": "员工加班餐", "demand": "网校基地-镇江", "supplier": "镇江袋鼠妈妈餐饮管理有限公司", "code": "TAL-202601290060", "name": "2026镇江供餐服务框架合同", "signEntity": "未填写签约主体", "amount": 2836050.0, "startDate": "2026-03-01", "endDate": "2027-02-28", "sourceSheet": "商旅、餐饮服务", "missingAmount": false}, {"category": "商旅服务", "subcategory": "员工差旅", "demand": "集团行政", "supplier": "中国东方航空股份有限公司", "code": "TAL-202403130028-02", "name": "2026年集团东航折扣协议价补充协议", "signEntity": "未填写签约主体", "amount": 1000.0, "startDate": "2026-05-01", "endDate": "2027-04-30", "sourceSheet": "商旅、餐饮服务", "missingAmount": false}, {"category": "餐饮服务", "subcategory": "学员餐", "demand": "学而思国际", "supplier": "北京龙城丽华快餐餐饮管理有限公司", "code": "TAL-202604270045", "name": "2026年国际北京分校学员餐框架龙城丽华", "signEntity": "未填写签约主体", "amount": 400000.0, "startDate": "2026-04-27", "endDate": "2027-04-26", "sourceSheet": "商旅、餐饮服务", "missingAmount": false}, {"category": "餐饮服务", "subcategory": "培训餐", "demand": "培优选培中心", "supplier": "绍兴美团科技有限公司", "code": "TAL-202604280050", "name": "2026年选培外卖服务框架协议美团", "signEntity": "未填写签约主体", "amount": 480000.0, "startDate": "2026-05-01", "endDate": "2027-04-30", "sourceSheet": "商旅、餐饮服务", "missingAmount": false}, {"category": "餐饮服务", "subcategory": "员工加班餐", "demand": "网校基地-沈阳", "supplier": "沈阳全心餐饮管理有限公司", "code": "TAL-202605120063", "name": "2026年沈阳网校职场加班餐服务框架协议-沈阳全心递补", "signEntity": "未填写签约主体", "amount": 984960.0, "startDate": "2026-05-15", "endDate": "2027-05-14", "sourceSheet": "商旅、餐饮服务", "missingAmount": false}, {"category": "商旅服务", "subcategory": "员工差旅", "demand": "集团行政", "supplier": "深圳锦江酒店管理有限公司南山分公司", "code": "TAL-202605270055", "name": "2026-2008年集团酒店协议价-锦江", "signEntity": "未填写签约主体", "amount": 1000.0, "startDate": "2026-07-26", "endDate": "2028-07-25", "sourceSheet": "商旅、餐饮服务", "missingAmount": false}, {"category": "商旅服务", "subcategory": "员工差旅", "demand": "集团行政", "supplier": "滴滴出行科技有限公司", "code": "TAL-202606120017", "name": "2026年滴滴企业版用车服务协议", "signEntity": "未填写签约主体", "amount": 30000000.0, "startDate": "2026-07-01", "endDate": "2027-06-30", "sourceSheet": "商旅、餐饮服务", "missingAmount": false}, {"category": "租车服务", "subcategory": "商务租车", "demand": "集团行政", "supplier": "北京天行健汽车服务有限公司", "code": "TAL-202604130051", "name": "2026年集团商务租车框架", "signEntity": "欣欣相融教育科技（北京）有限公司", "amount": 245250.0, "startDate": "2026-04-15", "endDate": "2027-04-14", "sourceSheet": "租车、搬家服务", "missingAmount": false}, {"category": "租车服务", "subcategory": "海外租车", "demand": "集团行政", "supplier": "上海携程宏睿国际旅行社有限公司,上海携程宏睿国际旅行社有限公司南通分公司", "code": "TAL-202510130020", "name": "海外包车服务协议-携程", "signEntity": "北京市海淀区学而思培训学校", "amount": 60000.0, "startDate": "2025-09-15", "endDate": "2026-09-14", "sourceSheet": "租车、搬家服务", "missingAmount": false}, {"category": "搬家服务", "subcategory": "点对点搬家", "demand": "集团行政", "supplier": "北京两点壹线企业管理有限公司", "code": "TAL-202508060012", "name": "2025好未来集团搬运服务采购框架（点对点）", "signEntity": "欣欣相融教育科技（北京）有限公司", "amount": 150000.0, "startDate": "2025-08-13", "endDate": "2026-08-12", "sourceSheet": "租车、搬家服务", "missingAmount": false}, {"category": "搬家服务", "subcategory": "普通搬家", "demand": "集团行政", "supplier": "北京两点壹线企业管理有限公司", "code": "TAL-202604230060", "name": "2026年集团北京区域普通搬家服务框架", "signEntity": "未填写签约主体", "amount": 200000.0, "startDate": "2026-04-20", "endDate": "2027-04-19", "sourceSheet": "租车、搬家服务", "missingAmount": false}, {"category": "租车服务", "subcategory": "企业专车", "demand": "集团行政", "supplier": "安吉汽车租赁有限公司", "code": "TAL-202606170064", "name": "企业专车服务协议补充协议三", "signEntity": "未填写签约主体", "amount": 84000.0, "startDate": "2026-05-24", "endDate": "2027-05-23", "sourceSheet": "租车、搬家服务", "missingAmount": false}];
+    const stats = {"projectCount": 52, "totalAmount": 200307182.99, "categoryCount": 5, "demandCount": 12, "supplierCount": 45, "missingAmountCount": 0, "missingDemandCount": 0, "source": "副本行政服务年框台账.xlsx"};
+    const dimensions = {
+      category: { label: '一级品类', key: 'category' },
+      subcategory: { label: '二级品类', key: 'subcategory' },
+      demand: { label: '需求方', key: 'demand' },
+      supplier: { label: '供应商', key: 'supplier' },
+    };
+    const colors = ['#177e89', '#d95f48', '#5b6fd8', '#d49a24', '#4f9b62', '#b45a91', '#6f7c8a', '#2f9d8a', '#a66a2d', '#7d61c8', '#c84f76', '#4c7fbe', '#8a8f98'];
+    let currentDimension = 'demand';
+    let summaryRows = [];
+
+    const tooltip = document.getElementById('tooltip');
+    const searchBox = document.getElementById('searchBox');
+
+    function formatMoney(value) {
+      const n = (Number(value) || 0) / 10000;
+      const abs = Math.abs(n);
+      const digits = abs >= 1 ? 2 : abs >= 0.1 ? 3 : abs >= 0.01 ? 4 : 5;
+      return n.toLocaleString('zh-CN', { maximumFractionDigits: digits });
+    }
+
+    function formatMoneyWithUnit(value) {
+      return formatMoney(value) + ' 万';
+    }
+
+    function formatPercent(value) {
+      return (Number(value) || 0).toFixed(1) + '%';
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+    }
+
+    function truncate(value, max = 18) {
+      const chars = Array.from(String(value || ''));
+      return chars.length <= max ? String(value || '') : chars.slice(0, max - 1).join('') + '…';
+    }
+
+    function aggregate(key) {
+      const map = new Map();
+      records.forEach(record => {
+        const name = record[key] || '未填写';
+        if (!map.has(name)) map.set(name, { name, count: 0, amount: 0 });
+        const row = map.get(name);
+        row.count += 1;
+        row.amount += Number(record.amount || 0);
+      });
+      return Array.from(map.values())
+        .map(row => ({ ...row, amount: Math.round(row.amount * 100) / 100 }))
+        .sort((a, b) => b.amount - a.amount || b.count - a.count || a.name.localeCompare(b.name, 'zh-CN'));
+    }
+
+    function supplierNames(value) {
+      return String(value || '未填写供应商')
+        .split(/[，,、;；]/)
+        .map(name => name.trim())
+        .filter(Boolean);
+    }
+
+    function aggregateSuppliersBy(key) {
+      const map = new Map();
+      records.forEach(record => {
+        const name = record[key] || '未填写';
+        if (!map.has(name)) map.set(name, { name, count: 0, projectCount: 0, amount: 0, suppliers: new Set() });
+        const row = map.get(name);
+        row.projectCount += 1;
+        row.amount += Number(record.amount || 0);
+        supplierNames(record.supplier).forEach(supplier => row.suppliers.add(supplier));
+      });
+      return Array.from(map.values())
+        .map(row => ({
+          name: row.name,
+          count: row.suppliers.size,
+          projectCount: row.projectCount,
+          amount: Math.round(row.amount * 100) / 100,
+        }))
+        .sort((a, b) => b.count - a.count || b.amount - a.amount || a.name.localeCompare(b.name, 'zh-CN'));
+    }
+
+    function compactOverviewRows(rows, limit) {
+      const top = rows.slice(0, limit);
+      const rest = rows.slice(limit);
+      if (!rest.length) return top;
+      const restRow = rest.reduce((acc, row) => {
+        acc.count += row.count;
+        acc.amount += row.amount;
+        return acc;
+      }, { name: '其他', count: 0, amount: 0 });
+      restRow.amount = Math.round(restRow.amount * 100) / 100;
+      return [...top, restRow];
+    }
+
+    function renderOverviewList(listId, metaId, rows, limit) {
+      const listRows = compactOverviewRows(rows, limit);
+      const totalAmount = rows.reduce((sum, row) => sum + row.amount, 0);
+      const meta = rows.length > limit ? `前 ${limit} + 其他 · 金额：万` : `共 ${rows.length} 项 · 金额：万`;
+      document.getElementById(metaId).textContent = meta;
+      document.getElementById(listId).innerHTML = listRows.map((row, index) => {
+        const share = totalAmount ? row.amount / totalAmount * 100 : 0;
+        const rank = row.name === '其他' ? '-' : index + 1;
+        return `
+          <div class="overview-row" title="${escapeHtml(row.name)} · ${formatMoneyWithUnit(row.amount)} · ${row.count.toLocaleString('zh-CN')} 个项目 · ${formatPercent(share)}">
+            <div class="overview-rank">${rank}</div>
+            <div class="overview-name">${escapeHtml(row.name)}</div>
+            <div class="overview-count">${row.count.toLocaleString('zh-CN')} 项</div>
+            <div class="overview-amount">${formatMoney(row.amount)}</div>
+            <div class="overview-bar"><span style="width:${share ? Math.max(1, share) : 0}%"></span></div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderOverview() {
+      const categoryRows = aggregate('category');
+      const demandRows = aggregate('demand');
+      const supplierRows = aggregate('supplier');
+      const topCategory = categoryRows[0] || { name: '-', count: 0, amount: 0 };
+      const topDemand = [...demandRows].sort((a, b) => b.count - a.count || b.amount - a.amount || a.name.localeCompare(b.name, 'zh-CN'))[0] || { name: '-', count: 0, amount: 0 };
+      const topSupplier = supplierRows[0] || { name: '-', count: 0, amount: 0 };
+      const biggestContract = [...records].sort((a, b) => Number(b.amount || 0) - Number(a.amount || 0))[0] || { name: '-', amount: 0, supplier: '-' };
+
+      const highlights = [
+        { label: '金额最高品类', value: topCategory.name, sub: `${formatMoneyWithUnit(topCategory.amount)} · ${topCategory.count.toLocaleString('zh-CN')} 个项目` },
+        { label: '项目最多需求方', value: topDemand.name, sub: `${topDemand.count.toLocaleString('zh-CN')} 个项目 · ${formatMoneyWithUnit(topDemand.amount)}` },
+        { label: '金额最高供应商', value: topSupplier.name, sub: `${formatMoneyWithUnit(topSupplier.amount)} · ${topSupplier.count.toLocaleString('zh-CN')} 个项目` },
+        { label: '单笔最高合同', value: biggestContract.name, sub: `${formatMoneyWithUnit(biggestContract.amount)} · ${biggestContract.supplier || '-'}` },
+      ];
+
+      document.getElementById('overviewHighlights').innerHTML = highlights.map(item => `
+        <div class="highlight">
+          <div class="highlight-label">${escapeHtml(item.label)}</div>
+          <div class="highlight-value" title="${escapeHtml(item.value)}">${escapeHtml(item.value)}</div>
+          <div class="highlight-sub" title="${escapeHtml(item.sub)}">${escapeHtml(item.sub)}</div>
+        </div>
+      `).join('');
+
+      renderOverviewList('overviewCategoryList', 'overviewCategoryMeta', categoryRows, categoryRows.length);
+      renderOverviewList('overviewDemandList', 'overviewDemandMeta', demandRows, 8);
+      renderOverviewList('overviewSupplierList', 'overviewSupplierMeta', supplierRows, 8);
+    }
+
+    function chartRows(rows, metric) {
+      const sorted = [...rows].sort((a, b) => b[metric] - a[metric] || b.amount - a.amount || a.name.localeCompare(b.name, 'zh-CN'));
+      const top = sorted.slice(0, 12);
+      const rest = sorted.slice(12);
+      if (!rest.length) return top;
+      const restRow = rest.reduce((acc, row) => {
+        acc.count += row.count;
+        acc.amount += row.amount;
+        return acc;
+      }, { name: '其他', count: 0, amount: 0 });
+      restRow.amount = Math.round(restRow.amount * 100) / 100;
+      return [...top, restRow];
+    }
+
+    function polar(cx, cy, r, angle) {
+      const a = angle - Math.PI / 2;
+      return [cx + Math.cos(a) * r, cy + Math.sin(a) * r];
+    }
+
+    function arcPath(cx, cy, r, start, end) {
+      if (end - start >= Math.PI * 2) end = start + Math.PI * 2 - 0.0001;
+      const [sx, sy] = polar(cx, cy, r, start);
+      const [ex, ey] = polar(cx, cy, r, end);
+      const large = end - start > Math.PI ? 1 : 0;
+      return `M ${cx} ${cy} L ${sx.toFixed(3)} ${sy.toFixed(3)} A ${r} ${r} 0 ${large} 1 ${ex.toFixed(3)} ${ey.toFixed(3)} Z`;
+    }
+
+    function moveTooltip(event) {
+      const pad = 14;
+      const width = tooltip.offsetWidth || 300;
+      const height = tooltip.offsetHeight || 140;
+      let left = event.clientX + pad;
+      let top = event.clientY + pad;
+      if (left + width > window.innerWidth - 8) left = event.clientX - width - pad;
+      if (top + height > window.innerHeight - 8) top = event.clientY - height - pad;
+      tooltip.style.left = `${Math.max(8, left)}px`;
+      tooltip.style.top = `${Math.max(8, top)}px`;
+    }
+
+    function showTooltip(event, row, metric, total, valueLabel = '项目数') {
+      const value = metric === 'amount' ? formatMoneyWithUnit(row.amount) : `${row.count.toLocaleString('zh-CN')} 个`;
+      const share = total ? row[metric] / total * 100 : 0;
+      tooltip.innerHTML = `
+        <div class="tip-title">${escapeHtml(row.name)}</div>
+        <div class="tip-row"><span>${metric === 'amount' ? '合同金额' : valueLabel}</span><strong>${escapeHtml(value)}</strong></div>
+        <div class="tip-row"><span>当前占比</span><strong>${formatPercent(share)}</strong></div>
+      `;
+      moveTooltip(event);
+      tooltip.classList.add('is-visible');
+      tooltip.setAttribute('aria-hidden', 'false');
+    }
+
+    function hideTooltip() {
+      tooltip.classList.remove('is-visible');
+      tooltip.setAttribute('aria-hidden', 'true');
+    }
+
+    function renderPie(svgId, legendId, rows, metric, centerLabel, valueLabel = '项目数') {
+      const svg = document.getElementById(svgId);
+      const legend = document.getElementById(legendId);
+      const total = rows.reduce((sum, row) => sum + Number(row[metric] || 0), 0);
+      svg.setAttribute('viewBox', '0 0 260 260');
+      svg.textContent = '';
+      legend.textContent = '';
+
+      const cx = 130;
+      const cy = 130;
+      const r = 108;
+      let cursor = 0;
+
+      if (!total) {
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', cx);
+        circle.setAttribute('cy', cy);
+        circle.setAttribute('r', r);
+        circle.setAttribute('fill', '#f2ece3');
+        svg.appendChild(circle);
+      } else {
+        rows.forEach((row, index) => {
+          const angle = Math.PI * 2 * Number(row[metric] || 0) / total;
+          const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          path.setAttribute('d', arcPath(cx, cy, r, cursor, cursor + angle));
+          path.setAttribute('fill', colors[index % colors.length]);
+          path.setAttribute('class', 'slice');
+          path.addEventListener('mousemove', event => showTooltip(event, row, metric, total, valueLabel));
+          path.addEventListener('mouseleave', hideTooltip);
+          svg.appendChild(path);
+          cursor += angle;
+        });
+      }
+
+      const inner = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      inner.setAttribute('cx', cx);
+      inner.setAttribute('cy', cy);
+      inner.setAttribute('r', 58);
+      inner.setAttribute('fill', '#fffdfa');
+      inner.setAttribute('stroke', '#ded8ce');
+      svg.appendChild(inner);
+
+      const title = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      title.setAttribute('x', cx);
+      title.setAttribute('y', cy - 7);
+      title.setAttribute('text-anchor', 'middle');
+      title.setAttribute('class', 'center-title');
+      title.textContent = centerLabel;
+      svg.appendChild(title);
+
+      const sub = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      sub.setAttribute('x', cx);
+      sub.setAttribute('y', cy + 17);
+      sub.setAttribute('text-anchor', 'middle');
+      sub.setAttribute('class', 'center-sub');
+      sub.textContent = metric === 'amount' ? formatMoneyWithUnit(total) : `${total.toLocaleString('zh-CN')} 个`;
+      svg.appendChild(sub);
+
+      const header = document.createElement('div');
+      header.className = 'legend-head';
+      header.innerHTML = `
+        <span></span>
+        <span>名称</span>
+        <span class="legend-value">${metric === 'amount' ? '数值（万）' : valueLabel}</span>
+        <span class="legend-value">占比</span>
+      `;
+      legend.appendChild(header);
+
+      rows.forEach((row, index) => {
+        const share = total ? row[metric] / total * 100 : 0;
+        const value = metric === 'amount' ? formatMoney(row.amount) : `${row.count.toLocaleString('zh-CN')} 个`;
+        const item = document.createElement('div');
+        item.className = 'legend-item';
+        item.innerHTML = `
+          <span class="swatch" style="background:${colors[index % colors.length]}"></span>
+          <span class="legend-name" title="${escapeHtml(row.name)}">${escapeHtml(truncate(row.name, 20))}</span>
+          <span class="legend-value">${escapeHtml(value)}</span>
+          <span class="legend-value">${formatPercent(share)}</span>
+        `;
+        legend.appendChild(item);
+      });
+    }
+
+    function renderSummary() {
+      document.getElementById('summaryHeadRow').innerHTML = `
+        <th>排名</th>
+        <th id="summaryDimHead">${escapeHtml(dimensions[currentDimension].label)}</th>
+        <th class="num">项目数</th>
+        <th class="bar-cell">项目数占比</th>
+        <th class="num">合同金额（万）</th>
+        <th class="bar-cell">金额占比</th>
+      `;
+      const totalCount = summaryRows.reduce((sum, row) => sum + row.count, 0);
+      const totalAmount = summaryRows.reduce((sum, row) => sum + row.amount, 0);
+      document.getElementById('summaryBody').innerHTML = summaryRows.map((row, index) => {
+        const countShare = totalCount ? row.count / totalCount * 100 : 0;
+        const amountShare = totalAmount ? row.amount / totalAmount * 100 : 0;
+        return `
+          <tr>
+            <td class="num">${index + 1}</td>
+            <td class="name-cell">${escapeHtml(row.name)}</td>
+            <td class="num">${row.count.toLocaleString('zh-CN')}</td>
+            <td class="bar-cell"><span>${formatPercent(countShare)}</span><div class="bar"><span style="width:${Math.max(1, countShare)}%"></span></div></td>
+            <td class="num">${formatMoney(row.amount)}</td>
+            <td class="bar-cell"><span>${formatPercent(amountShare)}</span><div class="bar amount"><span style="width:${Math.max(1, amountShare)}%"></span></div></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderCategorySummary(categoryRows, subcategoryRows) {
+      const categoryCountTotal = categoryRows.reduce((sum, row) => sum + row.count, 0);
+      const categoryAmountTotal = categoryRows.reduce((sum, row) => sum + row.amount, 0);
+      const subcategoryCountTotal = subcategoryRows.reduce((sum, row) => sum + row.count, 0);
+      const subcategoryAmountTotal = subcategoryRows.reduce((sum, row) => sum + row.amount, 0);
+      const rows = [
+        ...categoryRows.map(row => ({ ...row, level: '一级品类', countTotal: categoryCountTotal, amountTotal: categoryAmountTotal })),
+        ...subcategoryRows.map(row => ({ ...row, level: '二级品类', countTotal: subcategoryCountTotal, amountTotal: subcategoryAmountTotal })),
+      ];
+      document.getElementById('categorySummaryMeta').textContent = `${rows.length} 项`;
+      document.getElementById('categorySummaryBody').innerHTML = rows.map((row, index) => {
+        const countShare = row.countTotal ? row.count / row.countTotal * 100 : 0;
+        const amountShare = row.amountTotal ? row.amount / row.amountTotal * 100 : 0;
+        return `
+          <tr>
+            <td class="num">${index + 1}</td>
+            <td>${escapeHtml(row.level)}</td>
+            <td class="name-cell">${escapeHtml(row.name)}</td>
+            <td class="num">${row.count.toLocaleString('zh-CN')}</td>
+            <td class="bar-cell"><span>${formatPercent(countShare)}</span><div class="bar"><span style="width:${Math.max(1, countShare)}%"></span></div></td>
+            <td class="num">${formatMoney(row.amount)}</td>
+            <td class="bar-cell"><span>${formatPercent(amountShare)}</span><div class="bar amount"><span style="width:${Math.max(1, amountShare)}%"></span></div></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderCategoryView() {
+      const categoryRows = aggregate('category');
+      const subcategoryRows = aggregate('subcategory');
+      const categoryCountRows = chartRows(categoryRows, 'count');
+      const categoryAmountRows = chartRows(categoryRows, 'amount');
+      const subcategoryCountRows = chartRows(subcategoryRows, 'count');
+      const subcategoryAmountRows = chartRows(subcategoryRows, 'amount');
+
+      document.getElementById('categoryCountMeta').textContent = categoryCountRows.length < categoryRows.length ? '前 12 项 + 其他' : `${categoryRows.length} 项`;
+      document.getElementById('categoryAmountMeta').textContent = categoryAmountRows.length < categoryRows.length ? '前 12 项 + 其他' : `${categoryRows.length} 项`;
+      document.getElementById('subcategoryCountMeta').textContent = subcategoryCountRows.length < subcategoryRows.length ? '前 12 项 + 其他' : `${subcategoryRows.length} 项`;
+      document.getElementById('subcategoryAmountMeta').textContent = subcategoryAmountRows.length < subcategoryRows.length ? '前 12 项 + 其他' : `${subcategoryRows.length} 项`;
+
+      renderPie('categoryCountPie', 'categoryCountLegend', categoryCountRows, 'count', '项目数', '项目数');
+      renderPie('categoryAmountPie', 'categoryAmountLegend', categoryAmountRows, 'amount', '合同金额');
+      renderPie('subcategoryCountPie', 'subcategoryCountLegend', subcategoryCountRows, 'count', '项目数', '项目数');
+      renderPie('subcategoryAmountPie', 'subcategoryAmountLegend', subcategoryAmountRows, 'amount', '合同金额');
+      renderCategorySummary(categoryRows, subcategoryRows);
+    }
+
+    function supplierHierarchy() {
+      const categoryMap = new Map();
+      records.forEach(record => {
+        const category = record.category || '未填写一级品类';
+        const subcategory = record.subcategory || '未填写二级品类';
+        if (!categoryMap.has(category)) {
+          categoryMap.set(category, { name: category, amount: 0, projectCount: 0, suppliers: new Set(), subcategories: new Map() });
+        }
+        const categoryNode = categoryMap.get(category);
+        categoryNode.amount += Number(record.amount || 0);
+        categoryNode.projectCount += 1;
+        if (!categoryNode.subcategories.has(subcategory)) {
+          categoryNode.subcategories.set(subcategory, { name: subcategory, amount: 0, projectCount: 0, suppliers: new Set() });
+        }
+        const subcategoryNode = categoryNode.subcategories.get(subcategory);
+        subcategoryNode.amount += Number(record.amount || 0);
+        subcategoryNode.projectCount += 1;
+        supplierNames(record.supplier).forEach(supplier => {
+          categoryNode.suppliers.add(supplier);
+          subcategoryNode.suppliers.add(supplier);
+        });
+      });
+
+      return Array.from(categoryMap.values()).map(category => {
+        const subcategories = Array.from(category.subcategories.values()).map(subcategory => ({
+          ...subcategory,
+          amount: Math.round(subcategory.amount * 100) / 100,
+          suppliers: Array.from(subcategory.suppliers).sort((a, b) => a.localeCompare(b, 'zh-CN')),
+        })).sort((a, b) => b.suppliers.length - a.suppliers.length || b.amount - a.amount || a.name.localeCompare(b.name, 'zh-CN'));
+        return {
+          ...category,
+          amount: Math.round(category.amount * 100) / 100,
+          suppliers: Array.from(category.suppliers).sort((a, b) => a.localeCompare(b, 'zh-CN')),
+          subcategories,
+        };
+      }).sort((a, b) => b.suppliers.length - a.suppliers.length || b.amount - a.amount || a.name.localeCompare(b.name, 'zh-CN'));
+    }
+
+    function renderSupplierMindMap() {
+      const hierarchy = supplierHierarchy();
+      const subcategoryCount = hierarchy.reduce((sum, category) => sum + category.subcategories.length, 0);
+      const supplierCount = new Set(hierarchy.flatMap(category => category.suppliers)).size;
+      document.getElementById('supplierMindMeta').textContent = `${hierarchy.length} 个一级品类 · ${subcategoryCount} 个二级品类 · ${supplierCount} 家供应商`;
+      document.getElementById('supplierMindMap').innerHTML = hierarchy.map(category => `
+        <details class="mind-category" open>
+          <summary>
+            <span class="mind-node">
+              <span class="mind-caret">&gt;</span>
+              <span class="mind-node-title" title="${escapeHtml(category.name)}">${escapeHtml(category.name)}</span>
+              <span class="mind-node-meta">${category.suppliers.length.toLocaleString('zh-CN')} 家供应商 · ${category.projectCount.toLocaleString('zh-CN')} 个项目</span>
+            </span>
+          </summary>
+          <div class="mind-branches">
+            ${category.subcategories.map(subcategory => `
+              <details class="mind-subcategory">
+                <summary>
+                  <span class="mind-node">
+                    <span class="mind-caret">&gt;</span>
+                    <span class="mind-node-title" title="${escapeHtml(subcategory.name)}">${escapeHtml(subcategory.name)}</span>
+                    <span class="mind-node-meta">${subcategory.suppliers.length.toLocaleString('zh-CN')} 家 · ${subcategory.projectCount.toLocaleString('zh-CN')} 个项目</span>
+                  </span>
+                </summary>
+                <div class="supplier-chips">
+                  ${subcategory.suppliers.map(supplier => `<span class="supplier-chip" title="${escapeHtml(supplier)}">${escapeHtml(supplier)}</span>`).join('')}
+                </div>
+              </details>
+            `).join('')}
+          </div>
+        </details>
+      `).join('');
+    }
+
+    function renderSupplierView() {
+      const categorySupplierRows = aggregateSuppliersBy('category');
+      const subcategorySupplierRows = aggregateSuppliersBy('subcategory');
+      const categoryChartRows = chartRows(categorySupplierRows, 'count');
+      const subcategoryChartRows = chartRows(subcategorySupplierRows, 'count');
+
+      document.getElementById('supplierCategoryMeta').textContent = categoryChartRows.length < categorySupplierRows.length ? '前 12 项 + 其他' : `${categorySupplierRows.length} 项`;
+      document.getElementById('supplierSubcategoryMeta').textContent = subcategoryChartRows.length < subcategorySupplierRows.length ? '前 12 项 + 其他' : `${subcategorySupplierRows.length} 项`;
+      renderPie('supplierCategoryPie', 'supplierCategoryLegend', categoryChartRows, 'count', '供应商数', '供应商数');
+      renderPie('supplierSubcategoryPie', 'supplierSubcategoryLegend', subcategoryChartRows, 'count', '供应商数', '供应商数');
+      renderSupplierMindMap();
+    }
+
+    function parseNumber(value) {
+      if (value === null || value === undefined || value === '') return null;
+      const normalized = String(value).replace(/[,\s￥¥元]/g, '');
+      const n = Number.parseFloat(normalized);
+      return Number.isFinite(n) ? n : null;
+    }
+
+    function getUnitPrice(record) {
+      const candidates = [
+        record.unitPrice,
+        record.contractUnitPrice,
+        record.price,
+        record.unit_price,
+        record['合同单价'],
+        record['单价'],
+      ];
+      for (const value of candidates) {
+        const n = parseNumber(value);
+        if (n !== null) return n;
+      }
+      return null;
+    }
+
+    function formatUnitPrice(value) {
+      const n = Number(value);
+      if (!Number.isFinite(n)) return '--';
+      return n.toLocaleString('zh-CN', { maximumFractionDigits: 2 });
+    }
+
+    function median(values) {
+      if (!values.length) return null;
+      const sorted = [...values].sort((a, b) => a - b);
+      const mid = Math.floor(sorted.length / 2);
+      return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+    }
+
+    function aggregateUnitPrices(key) {
+      const map = new Map();
+      records.forEach(record => {
+        const unitPrice = getUnitPrice(record);
+        if (unitPrice === null) return;
+        const name = record[key] || '未填写';
+        if (!map.has(name)) map.set(name, { name, prices: [], amount: 0 });
+        const row = map.get(name);
+        row.prices.push(unitPrice);
+        row.amount += Number(record.amount || 0);
+      });
+      return Array.from(map.values()).map(row => {
+        const sum = row.prices.reduce((acc, price) => acc + price, 0);
+        return {
+          name: row.name,
+          sampleCount: row.prices.length,
+          average: sum / row.prices.length,
+          median: median(row.prices),
+          min: Math.min(...row.prices),
+          max: Math.max(...row.prices),
+          amount: Math.round(row.amount * 100) / 100,
+        };
+      }).sort((a, b) => b.average - a.average || b.sampleCount - a.sampleCount || a.name.localeCompare(b.name, 'zh-CN'));
+    }
+
+    function renderCostList(listId, metaId, rows) {
+      const list = document.getElementById(listId);
+      const topRows = rows.slice(0, 8);
+      const maxAverage = topRows.reduce((max, row) => Math.max(max, row.average), 0);
+      document.getElementById(metaId).textContent = rows.length ? `Top ${topRows.length}` : '0 项';
+      if (!topRows.length) {
+        list.innerHTML = '<div class="empty-state">暂无单价数据</div>';
+        return;
+      }
+      list.innerHTML = topRows.map(row => {
+        const width = maxAverage ? row.average / maxAverage * 100 : 0;
+        return `
+          <div class="cost-row" title="${escapeHtml(row.name)} · 平均单价 ${formatUnitPrice(row.average)} · ${row.sampleCount.toLocaleString('zh-CN')} 个样本">
+            <div class="cost-name">${escapeHtml(row.name)}</div>
+            <div class="cost-value">${formatUnitPrice(row.average)}</div>
+            <div class="cost-samples">${row.sampleCount.toLocaleString('zh-CN')} 样本</div>
+            <div class="cost-bar"><span style="width:${width ? Math.max(1, width) : 0}%"></span></div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderCostAnalysis() {
+      const prices = records.map(getUnitPrice).filter(value => value !== null);
+      const pricedCount = prices.length;
+      const missingCount = records.length - pricedCount;
+      const average = pricedCount ? prices.reduce((sum, price) => sum + price, 0) / pricedCount : null;
+      const max = pricedCount ? Math.max(...prices) : null;
+      const categoryRows = aggregateUnitPrices('category');
+      const subcategoryRows = aggregateUnitPrices('subcategory');
+      const tableRows = [
+        ...categoryRows.map(row => ({ ...row, level: '一级品类' })),
+        ...subcategoryRows.map(row => ({ ...row, level: '二级品类' })),
+      ];
+
+      document.getElementById('costMeta').textContent = `单价样本 ${pricedCount.toLocaleString('zh-CN')} / ${records.length.toLocaleString('zh-CN')}`;
+      document.getElementById('costPricedCount').textContent = pricedCount.toLocaleString('zh-CN');
+      document.getElementById('costCoverage').textContent = formatPercent(records.length ? pricedCount / records.length * 100 : 0);
+      document.getElementById('costAverage').textContent = formatUnitPrice(average);
+      document.getElementById('costMax').textContent = formatUnitPrice(max);
+      document.getElementById('costMissing').textContent = missingCount.toLocaleString('zh-CN');
+
+      renderCostList('costCategoryList', 'costCategoryMeta', categoryRows);
+      renderCostList('costSubcategoryList', 'costSubcategoryMeta', subcategoryRows);
+
+      document.getElementById('costTableMeta').textContent = tableRows.length ? `${tableRows.length} 项` : '0 项';
+      document.getElementById('costTableBody').innerHTML = tableRows.length ? tableRows.map(row => `
+        <tr>
+          <td>${escapeHtml(row.level)}</td>
+          <td class="name-cell">${escapeHtml(row.name)}</td>
+          <td class="num">${row.sampleCount.toLocaleString('zh-CN')}</td>
+          <td class="num">${formatUnitPrice(row.average)}</td>
+          <td class="num">${formatUnitPrice(row.median)}</td>
+          <td class="num">${formatUnitPrice(row.min)}</td>
+          <td class="num">${formatUnitPrice(row.max)}</td>
+          <td class="num">${formatMoney(row.amount)}</td>
+        </tr>
+      `).join('') : '<tr><td colspan="8" class="subtle">暂无单价数据</td></tr>';
+    }
+
+    function renderDetails() {
+      const query = searchBox.value.trim().toLowerCase();
+      const rows = records
+        .filter(record => {
+          if (!query) return true;
+          return [record.category, record.subcategory, record.demand, record.supplier, record.code, record.name, record.signEntity]
+            .some(value => String(value || '').toLowerCase().includes(query));
+        })
+        .sort((a, b) => String(a.category).localeCompare(String(b.category), 'zh-CN') || b.amount - a.amount || String(a.code).localeCompare(String(b.code), 'zh-CN'));
+      document.getElementById('detailBody').innerHTML = rows.map(record => `
+        <tr>
+          <td>${escapeHtml(record.category)}</td>
+          <td>${escapeHtml(record.code)}</td>
+          <td class="name-cell">${escapeHtml(record.name)}</td>
+          <td>${escapeHtml(record.subcategory)}</td>
+          <td>${escapeHtml(record.demand)}</td>
+          <td class="name-cell">${escapeHtml(record.supplier)}</td>
+          <td class="num">${formatMoney(record.amount)}</td>
+          <td><span class="subtle">${escapeHtml(record.startDate || '-')} 至 ${escapeHtml(record.endDate || '-')}</span></td>
+        </tr>
+      `).join('');
+      document.getElementById('detailTitle').textContent = `合同明细（${rows.length}）`;
+    }
+
+    function renderDistribution() {
+      const dim = dimensions[currentDimension];
+      summaryRows = aggregate(dim.key);
+      const countRows = chartRows(summaryRows, 'count');
+      const amountRows = chartRows(summaryRows, 'amount');
+
+      document.getElementById('countTitle').textContent = `${dim.label}项目数分布`;
+      document.getElementById('amountTitle').textContent = `${dim.label}金额分布`;
+      document.getElementById('countPie').setAttribute('aria-label', `${dim.label}项目数分布饼图`);
+      document.getElementById('amountPie').setAttribute('aria-label', `${dim.label}金额分布饼图`);
+      document.getElementById('summaryTitle').textContent = `${dim.label}分布明细`;
+      document.getElementById('summaryMeta').textContent = `${summaryRows.length} 项`;
+      document.getElementById('countMeta').textContent = countRows.length < summaryRows.length ? `前 12 项 + 其他` : `${summaryRows.length} 项`;
+      document.getElementById('amountMeta').textContent = amountRows.length < summaryRows.length ? `前 12 项 + 其他` : `${summaryRows.length} 项`;
+
+      renderPie('countPie', 'countLegend', countRows, 'count', '项目数', '项目数');
+      renderPie('amountPie', 'amountLegend', amountRows, 'amount', '合同金额');
+      renderSummary();
+    }
+
+    function switchView(view) {
+      document.querySelectorAll('[data-view-section]').forEach(section => {
+        section.hidden = section.dataset.viewSection !== view;
+      });
+      if (view === 'category') renderCategoryView();
+      if (view === 'distribution') renderDistribution();
+      if (view === 'supplier') renderSupplierView();
+      if (view === 'cost') renderCostAnalysis();
+      if (view === 'detail') renderDetails();
+    }
+
+    function initStats() {
+      document.getElementById('statProjects').textContent = stats.projectCount.toLocaleString('zh-CN');
+      document.getElementById('statAmount').textContent = formatMoney(stats.totalAmount);
+      document.getElementById('statCategories').textContent = stats.categoryCount.toLocaleString('zh-CN');
+      document.getElementById('statDemands').textContent = stats.demandCount.toLocaleString('zh-CN');
+      document.getElementById('statSuppliers').textContent = stats.supplierCount.toLocaleString('zh-CN');
+      renderOverview();
+    }
+
+    document.querySelectorAll('[data-view]').forEach(button => {
+      button.addEventListener('click', () => {
+        if (button.dataset.dimension) currentDimension = button.dataset.dimension;
+        document.querySelectorAll('[data-view]').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+        switchView(button.dataset.view);
+      });
+    });
+
+    searchBox.addEventListener('input', renderDetails);
+    initStats();
+    renderCategoryView();
+    renderDistribution();
+    renderSupplierView();
+    renderCostAnalysis();
+    renderDetails();
+  </script>
+</body>
+</html>
